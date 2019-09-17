@@ -1,0 +1,36 @@
+defshell -bash      # Use bash with screen
+startup_message off # No splas screen
+
+# Prompt with git branch, remove/comment if not using git
+source /etc/bash_completion.d/git
+export PS1='\w$(__git_ps1 "(%s)") > '
+
+# Status bar, remove/comment if not using git
+hardstatus alwayslastline "%{b kw}| %{g}%H%{w} Chainlink | %{g}%c%{w} | %{g}%d.%m.%Y%{w} |%{-b kw}%u %-Lw%{+b g}%50> %n%f %t %{-}%+Lw%< |"
+
+# Scrollback
+defscrollback 2048
+
+chdir ~
+
+# Start a screen for ETH client
+screen -t "ETH"
+stuff "run_eth^M" # This boots up the ETH client with alias
+
+# Start a screen for chainlink
+# Remember to wait for ETH client to boot&sync first, before entering
+# credentials and booting up Chainlink
+screen -t "Chainlink"
+stuff "run_chainlink^M" # This boots up the chainlink node with alias
+
+# Start a screen for chainlink
+# Remember to wait for ETH client to boot&sync first, before entering
+# credentials and booting up Chainlink
+screen -t "Secondary"
+stuff "run_chainlink_secondary^M" # This boots up the secondary node with alias
+
+# Move to home
+chdir ~
+
+# Start a misc screen
+screen -t "misc"

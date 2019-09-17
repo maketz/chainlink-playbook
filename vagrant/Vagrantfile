@@ -1,0 +1,39 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search
+  # for boxes at https://vagrantcloud.com/search.
+  config.vm.box = "ubuntu/bionic64"
+  config.vm.hostname = "bionic"
+
+  # Important! You must set a decent amount of disk space, so ETH client
+  # won't clog up all of your disk space immediately. Vagrant plugin
+  # vagrant-disksize is required.
+  config.disksize.size = '256GB'
+
+  # Checking for updates is recommended by official Vagrant
+  # documentation, but updates CAN mess up your machine, if you don't
+  # know what you are 100% doing, so it's disabled in this example.
+  config.vm.box_check_update = false
+
+  # Chainlink GUI
+  config.vm.network "forwarded_port", guest: 6688, host: 6688
+  config.vm.network "forwarded_port", guest: 6687, host: 6688
+
+  # Private network between host and guest machines
+  config.vm.network "private_network", ip: "192.168.33.1"
+
+  # Change these according to your hardware needs
+  config.vm.provider "virtualbox" do |v|
+  	v.memory = 4096
+  	v.cpus = 2
+  end
+end
