@@ -27,7 +27,7 @@ stuff "run_chainlink^M" # This boots up the chainlink node with alias
 # Remember to wait for ETH client to boot&sync first, before entering
 # credentials and booting up Chainlink
 screen -t "Secondary"
-stuff "run_chainlink_secondary^M" # This boots up the secondary node with alias
+stuff "run_secondary^M" # This boots up the secondary node with alias
 
 # Move to home
 chdir ~
