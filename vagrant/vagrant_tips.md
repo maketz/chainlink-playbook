@@ -119,3 +119,16 @@ and folders are visible at `/vagrant` folder inside the Vagrant.
 It would be wise to have your Git repositories cloned inside the shared
 folder, so you can edit the shared files with a better text editor on
 your host machine.
+
+
+## Git branch in command prompt
+
+The following snippet will show your current Git branch in your bash.
+Add it to the end of `.bashrc` file.
+
+```
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+export PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
+```
