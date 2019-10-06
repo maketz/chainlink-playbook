@@ -51,6 +51,16 @@ switch_secondary () {
     docker restart chainlink -t 0 && docker attach secondary
 }
 
+# Connect to main node's container
+chainlink_cli () {
+    docker exec -it chainlink /bin/bash
+}
+
+# Connect to secondary node's container
+secondary_cli () {
+    docker exec -it secondary /bin/bash
+}
+
 # For quick screen usage
 alias chainlink='screen -S chainlink -c ~/.screenrc-chainlink -d -R'
 
