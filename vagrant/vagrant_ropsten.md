@@ -61,7 +61,7 @@ location on a SSD.
 ```
 config.disksize.size = '256GB' # Assign a decent amount of disk space, required by ETH client
 config.vm.network "forwarded_port", guest: 6688, host: 6688 # Chainlink GUI
-config.vm.network "forwarded_port", guest: 6687, host: 6688 # Secondary GUI
+config.vm.network "forwarded_port", guest: 6687, host: 6687 # Secondary GUI
 ```
 
 Check out the [Vagrantfile](../vagrant/Vagrantfile) for example configuration.
