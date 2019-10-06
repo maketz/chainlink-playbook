@@ -1,3 +1,8 @@
+# Update latest changes to bash, like new aliases
+update_bash () {
+    . ~/.bashrc
+}
+
 # Boot up ETH client quickly
 run_eth () {
     docker start -i eth
@@ -49,6 +54,16 @@ switch_main () {
 # Both nodes should be running
 switch_secondary () {
     docker restart chainlink -t 0 && docker attach secondary
+}
+
+# Connect to main node's container
+chainlink_cli () {
+    docker exec -it chainlink /bin/bash
+}
+
+# Connect to secondary node's container
+secondary_cli () {
+    docker exec -it secondary /bin/bash
 }
 
 # For quick screen usage
