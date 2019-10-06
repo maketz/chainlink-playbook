@@ -60,8 +60,11 @@ location on a SSD.
 
 ```
 config.disksize.size = '256GB' # Assign a decent amount of disk space, required by ETH client
-config.vm.network "forwarded_port", guest: 6688, host: 6688 # Chainlink GUI
-config.vm.network "forwarded_port", guest: 6687, host: 6687 # Secondary GUI
+
+# Chainlink nodes, HTTPS
+# Ports are 67xx to differentiate from HTTP configurations in docs
+config.vm.network "forwarded_port", guest: 6788, host: 6788 # Chainlink GUI
+config.vm.network "forwarded_port", guest: 6787, host: 6787 # Secondary GUI
 ```
 
 Check out the [Vagrantfile](../vagrant/Vagrantfile) for example configuration.
@@ -253,34 +256,64 @@ ALLOW_ORIGINS=*" > ~/.chainlink-ropsten/.env
 4. Set the ip to your Chainlink environment file:
 `echo "ETH_URL=ws://$ETH_CONTAINER_IP:8546" >> ~/.chainlink-ropsten/.env`
 
-5. Boot up Chainlink node:
-`cd ~/.chainlink-ropsten && docker run --name chainlink -p 6688:6688 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n`
+5. Add SSL support:
+
+Following commands can be found at
+https://docs.chain.link/docs/enabling-https-connections
+
+5.1 Create a folder for certs: `mkdir ~/.chainlink-ropsten/tls`
+
+5.2 Create certs inside the folder:
+
+```
+openssl req -x509 -out  ~/.chainlink-ropsten/tls/server.crt  -keyout ~/.chainlink-ropsten/tls/server.key \
+  -newkey rsa:2048 -nodes -sha256 -days 365 \
+  -subj '/CN=localhost' -extensions EXT -config <( \
+   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+```
+
+5.3. Update .env file to contain certs:
+
+```
+echo "TLS_CERT_PATH=/chainlink/tls/server.crt
+TLS_KEY_PATH=/chainlink/tls/server.key" >> .env
+```
+
+5.4 Remove TLS port env-configuration and enable secure cookies with:
+```
+sed -i '/CHAINLINK_TLS_PORT=0/d' .env
+
+sed -i '/SECURE_COOKIES=false/d' .env
+```
+
+6. Boot up Chainlink node:
+`cd ~/.chainlink-ropsten && docker run --name chainlink -p 6788:6689 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n`
 
    This command will start the chainlink node setup.
 
-5.1. Enter a secure password for your keystore file.
+6.1. Enter a secure password for your keystore file.
 
-5.2. Enter your email and a secure password. These work as your
+6.2. Enter your email and a secure password. These work as your
      Chainlink node credentials, so remember them well!
 
-6. Open up your browser and login with your credentials at
-   `192.168.33.1:6688`.
+7. Open up your browser and login with your credentials at
+   `https://192.168.33.1:6788`.
 
-7. You can boot up secondary Chainlink node with:
-`cd ~/.chainlink-ropsten && docker run --name secondary -p 6687:6688 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n`
+8. You can boot up secondary Chainlink node with:
+`cd ~/.chainlink-ropsten && docker run --name secondary -p 6787:6689 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n`
 
-8. When you want to, you can stop containers with `docker stop chainlink`
+9. When you want to, you can stop containers with `docker stop chainlink`
    and `docker stop secondary`. To start he containers again, you can
    use `docker start -i chainlink` and `docker start -i secondary`
 
-9. If you want to, you can save your credentials locally and use them on
+10. If you want to, you can save your credentials locally and use them on
    bootup.
 
    Official documentation uses echo, but this doc uses nano, because
    complex passwords get obliterated by the echo command.
    https://docs.chain.link/docs/miscellaneous#section-use-password-and-api-files-on-startup
 
-9.1 Start editing a new file with `nano ~/.chainlink-ropsten/.api` and
+10.1 Start editing a new file with `nano ~/.chainlink-ropsten/.api` and
     add your credentials on separate lines:
 
 ```
@@ -288,7 +321,7 @@ your@email.com
 your_password
 ```
 
-9.2 Add wallet password to a file similarly with
+10.2 Add wallet password to a file similarly with
     `nano ~/.chainlink-ropsten/.password` and add your wallet password
     there.
 
@@ -296,11 +329,11 @@ your_password
 your_wallet_pass
 ```
 
-9.3 Upgrade your node containers accordingly:
+10.3 Upgrade your node containers accordingly:
 ```
 docker rm chainlink && docker rm secondary
-cd ~/.chainlink-ropsten && docker run --name chainlink -p 6688:6688 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n -p /chainlink/.password -a /chainlink/.api
-cd ~/.chainlink-ropsten && docker run --name secondary -p 6687:6688 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n -p /chainlink/.password -a /chainlink/.api
+cd ~/.chainlink-ropsten && docker run --name chainlink -p 6788:6689 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n -p /chainlink/.password -a /chainlink/.api
+cd ~/.chainlink-ropsten && docker run --name secondary -p 6787:6689 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n -p /chainlink/.password -a /chainlink/.api
 ```
 
 
