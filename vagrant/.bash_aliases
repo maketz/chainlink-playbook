@@ -37,6 +37,20 @@ stop_nodes() {
     docker stop chainlink && docker stop secondary
 }
 
+# Switch to main Chainlink node
+# WARNING: USE WITH CAUTION
+# Both nodes should be running
+switch_main () {
+    docker restart secondary -t 0 && docker attach chainlink
+}
+
+# Switch to secondary Chainlink node
+# WARNING: USE WITH CAUTION
+# Both nodes should be running
+switch_secondary () {
+    docker restart chainlink -t 0 && docker attach secondary
+}
+
 # For quick screen usage
 alias chainlink='screen -S chainlink -c ~/.screenrc-chainlink -d -R'
 
