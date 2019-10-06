@@ -1,3 +1,8 @@
+# Update latest changes to bash, like new aliases
+update_bash () {
+    . ~/.bashrc
+}
+
 # Boot up ETH client quickly
 run_eth () {
     docker start -i eth
