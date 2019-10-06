@@ -270,7 +270,39 @@ ALLOW_ORIGINS=*" > ~/.chainlink-ropsten/.env
 `cd ~/.chainlink-ropsten && docker run --name secondary -p 6687:6688 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n`
 
 8. When you want to, you can stop containers with `docker stop chainlink`
-   and `docker stop secondary`.
+   and `docker stop secondary`. To start he containers again, you can
+   use `docker start -i chainlink` and `docker start -i secondary`
+
+9. If you want to, you can save your credentials locally and use them on
+   bootup.
+
+   Official documentation uses echo, but this doc uses nano, because
+   complex passwords get obliterated by the echo command.
+   https://docs.chain.link/docs/miscellaneous#section-use-password-and-api-files-on-startup
+
+9.1 Start editing a new file with `nano ~/.chainlink-ropsten/.api` and
+    add your credentials on separate lines:
+
+```
+your@email.com
+your_password
+```
+
+9.2 Add wallet password to a file similarly with
+    `nano ~/.chainlink-ropsten/.password` and add your wallet password
+    there.
+
+```
+your_wallet_pass
+```
+
+9.3 Upgrade your node containers accordingly:
+```
+docker rm chainlink && docker rm secondary
+cd ~/.chainlink-ropsten && docker run --name chainlink -p 6688:6688 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n -p /chainlink/.password -a /chainlink/.api
+cd ~/.chainlink-ropsten && docker run --name secondary -p 6687:6688 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n -p /chainlink/.password -a /chainlink/.api
+```
+
 
 You are done!
 
