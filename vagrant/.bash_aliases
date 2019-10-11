@@ -13,6 +13,11 @@ stop_eth () {
     docker start -i eth
 }
 
+# Stop all node & eth containers
+stop_all () {
+    docker stop secondary && docker stop chainlink && docker stop eth
+}
+
 # Boot up chainlink node quickly
 # Remember to wait for ETH client to boot&sync first, before entering
 # credentials and booting up Chainlink

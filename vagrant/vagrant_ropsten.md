@@ -65,6 +65,10 @@ config.disksize.size = '256GB' # Assign a decent amount of disk space, required 
 # Ports are 67xx to differentiate from HTTP configurations in docs
 config.vm.network "forwarded_port", guest: 6788, host: 6788 # Chainlink GUI
 config.vm.network "forwarded_port", guest: 6787, host: 6787 # Secondary GUI
+
+# Create a private network, which allows host-only access to the machine
+# using a specific IP.
+config.vm.network "private_network", ip: "192.168.33.1"
 ```
 
 Check out the [Vagrantfile](../vagrant/Vagrantfile) for example configuration.
