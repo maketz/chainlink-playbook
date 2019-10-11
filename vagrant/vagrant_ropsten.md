@@ -350,5 +350,10 @@ Now you have a fully functioning vagrant machine, that you can boot up
 and shut down anytime. If you want to speed up your work with vagrant,
 check out [vagrant_tips.md](../vagrant/vagrant_tips.md).
 
+**IMPORTANT:** If you are planning to use PostgresSQL as database
+(SQLite is the default), you should continue to
+[postgresql.md](../vagrant/postgresql.md) and configure your database
+first, before you start using and building your node.
+
 When you want to shut down vagrant machine, you can use `vagrant halt`
 on command prompt.
