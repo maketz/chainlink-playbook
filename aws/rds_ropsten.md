@@ -1,6 +1,11 @@
 # Amazon RDS
 
-Most information on this doc can also be found here:
+Before you begin, you should have your VPC configuration ready, or
+else you will have to do extra work changing the VPC. Some database
+options do not allow you to change VPC after a database has been
+created. More info about VPC can be found on [vpc.md](./vpc.md).
+
+Official install/setup information about RDS can be found here:
 https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.PostgreSQL.html#CHAP_GettingStarted.Creating.PostgreSQL
 
 This document is a simple rundown on how to create PostgreSQL server
@@ -8,6 +13,7 @@ on AWS for your node. This documentation is focused on free tier setup.
 
 Make sure your preferred region has t2.micro instances available, for example:
 - EU Frankfurt
+- EU Ireland
 - Canada (Central)
 - All US regions
 
@@ -31,12 +37,14 @@ https://aws.amazon.com/rds/free/
     - DB instance identifier: Whatever you like
     - Master username: Preferrably long and strong.
     - Password: Preferrably long and strong.
-    - Connectivity->Additional connectivity configuration:
-        - Publicly accessible: Yes
-        - VPC security group (Can skip):
-            If you already have VPC security group created, choose
-            the one that suits you the best. If you do not have any
-            custom VPC security group yet, default is ok for now.
+    - Connectivity:
+        - VPC: Your custom VPC (the one created in [vpc.md](./vpc.md))
+        - Additional connectivity configuration:
+            - Subnet group: Your custom Subnet Group (the one created in [vpc.md](./vpc.md))
+            - Publicly accessible: Yes
+            - VPC security group:
+                1. Remove default...
+                2. ...and use the one you defined for Postgres in VPC creation
     - Additional Configuration:
         - Initial database name:
             Preferrably keep to alphabetical numbers (A-Z, a-z, 0-9),
@@ -44,34 +52,12 @@ https://aws.amazon.com/rds/free/
             node.
 6. Click on Create database.
 
-Your database should now be booting up. While you're waiting, you can
-do your security group now, if you haven't already.
-
-
-### Creating VPC security group
-
-1. Open Databases in Amazon RDS (Left menu).
-2. Click on your DB identifier to open up the database information.
-3. Open a new tab from the VPC security groups name link
-4. On the new tab, click on "Create a security group"
-5. Add following info:
-    - Security group name
-    - Description
-6. Click on "Add rule" and set following:
-    - Set port to 5432
-    - Change the source to My IP
-    - Give it a fitting description
-7. Create.
-
-Your DB should be ready by now. Info should show a green "Available"
-text under Info-title. Now we'll set the newly created security group
-for the DB, so connections can be made from your IP.
+Info should show a green "Available" text under Info-title, when your
+DB is ready.
 
 ### Update the database
 
-**IMPORTANT:** Even if your VPC security groups are set, you'll still
-want to do AWS certificate authority update to the newest. So don't
-skip this step.
+We'll update the DB instance to use newest SSL/TLS cert.
 
 1. Open up your DB on RDS console again
 2. We'll modify the configuration for now from the upper right Modify:
@@ -82,14 +68,17 @@ skip this step.
           https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
 4. Continue and choose "Apply immediately". Reboot may take some time.
 
-You should now be ready to connect to the DB with pgAdmin.
+You should now be ready to connect to the DB with pgAdmin or psql.
 
-## Get the SSL certificate from AWS
+## Opening up your DB to the internet
 
-If you didn't grab the SSL certificate from AWS yet, you should do it
-now to ensure all your connections are secure in following steps.
+You'll need your internet gateway for private subnets for a while,
+so go to VPC dashboard and do the following:
 
-https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
+1. Open route tables
+2. Activate the public route table (created in [vpc.md](./vpc.md)) and
+   edit Subnet Associations in the bottom tab.
+3. Add your private subnets to the route table for a while.
 
 ## Creating proxy user, Option A: pgAdmin
 
@@ -183,7 +172,8 @@ database.
 If you do get locked out of your DB, open up Query Tool on `postgres` DB
 and enter following: `GRANT ALL PRIVILEGES ON DATABASE mydatabase TO mymasteruser;`
 
-All done here.
+All done here. You should modify the DB and remove public access
+and remove private subnets from public route table association.
 
 
 ## Creating proxy user, Option B: psql
@@ -212,28 +202,5 @@ GRANT ALL PRIVILEGES ON DATABASE mydb TO mymasteruser;
 ```
 6. Exit with `\q`.
 
-All done here.
-
-
-## Enforcing SSL
-
-Forcing SSL connections provides sufficient encryption for your database
-traffic. This means that without using the SSL certification, you
-won't be able to connect to the database, so you won't forget to use it.
-
-1. Open Amazon RDS.
-2. From left menu bar, choose "Parameter group"
-3. Click on "Create parameter group" on the right and apply following:
-    - Parameter group family: postgres11
-    - Type: DB parameter group
-    - Group name: Whatever you like
-    - Description: Whatever you like
-4. Create.
-5. Open the newly created parameter group for your database.
-6. Search for parameter `force_ssl` and tick the checkbox and click
-   on "Edit parameters".
-5. Change the dropdown value from 0 to 1 and click on "Save changes".
-6. Navigate to your DB instance in RDS and open up "Modify".
-7. Change the DB parameter group to your newly created parameter group.
-8. "Continue" and apply with "Modify DB Instance". Preferrably choose
-   the "Apply immediately" option.
+All done here. You should modify the DB and remove public access
+and remove private subnets from public route table association.
