@@ -1,0 +1,17 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+        "Name": "smartcontract/chainlink:latest"
+    },
+    "Ports": [
+        {"ContainerPort": "6688"}
+    ],
+    "Volumes": [
+        {
+            "HostDirectory": "/var/.chainlink-ropsten",
+            "ContainerDirectory": "/chainlink"
+        }
+    ],
+    "Entrypoint": "chainlink",
+    "Command": "local node -p /chainlink/.password -a /chainlink/.api"
+}
